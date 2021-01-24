@@ -1,23 +1,10 @@
-plugins {
-    id 'java'
-    id "io.spring.dependency-management" version "1.0.11.RELEASE"
-}
-
-repositories {
-    mavenCentral()
-}
-
-ext {
-    lombokVersion = '1.18.16'
-    asmVersion = '1.11.9'
-    commonsCollectionVersion = '4.3'
-    commonsLangVersion = '3.11'
-    cglibVersion = '3.3.0'
-    slf4jApiVersion = '1.7.30'
-}
-
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+buildscript{
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE")
+    }
 }
 
 allprojects {
@@ -29,7 +16,6 @@ allprojects {
     version = '1.0-SNAPSHOT'
 }
 
-
 subprojects {
     repositories {
         mavenCentral()
@@ -40,15 +26,37 @@ subprojects {
         options.encoding = 'UTF-8'
     }
 
+    ext {
+        lombokVersion = '1.18.16'
+        asmVersion = '1.11.9'
+        commonsCollectionVersion = '4.3'
+        commonsLangVersion = '3.11'
+        cglibVersion = '3.3.0'
+        slf4jApiVersion = '1.7.30'
+    }
+
+    apply plugin: 'io.spring.dependency-management'
+
+    dependencyManagement {
+        dependencies {
+            dependency "org.projectlombok:lombok:$lombokVersion"
+            dependency "com.esotericsoftware:reflectasm:$asmVersion"
+            dependency "org.apache.commons:commons-collections4:$commonsCollectionVersion"
+            dependency "org.apache.commons:commons-lang3:$commonsLangVersion"
+            dependency "cglib:cglib:$cglibVersion"
+            dependency "org.slf4j:slf4j-api:$slf4jApiVersion"
+        }
+    }
+
     dependencies {
         compile(
-                "org.projectlombok:lombok:$lombokVersion",
-                "com.esotericsoftware:reflectasm:$asmVersion",
-                "org.apache.commons:commons-collections4:$commonsCollectionVersion",
-                "org.apache.commons:commons-lang3:$commonsLangVersion",
-                "cglib:cglib:$cglibVersion",
-                "org.slf4j:slf4j-api:$slf4jApiVersion"
+                "org.projectlombok:lombok",
+                "com.esotericsoftware:reflectasm",
+                "org.apache.commons:commons-collections4",
+                "org.apache.commons:commons-lang3",
+                "cglib:cglib",
+                "org.slf4j:slf4j-api"
         )
-        annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+        annotationProcessor "org.projectlombok:lombok"
     }
 }
