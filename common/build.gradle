@@ -2,6 +2,7 @@ archivesBaseName = 'common'
 dependencies {
     compile(
             "com.esotericsoftware:reflectasm",
-            "cglib:cglib"
+            "cglib:cglib",
+            "commons-net:commons-net"
     )
 }

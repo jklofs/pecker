@@ -33,6 +33,7 @@ subprojects {
         commonsLangVersion = '3.11'
         cglibVersion = '3.3.0'
         slf4jApiVersion = '1.7.30'
+        commonsNetVersion = '3.7.2'
     }
 
     apply plugin: 'io.spring.dependency-management'
@@ -45,6 +46,7 @@ subprojects {
             dependency "org.apache.commons:commons-lang3:$commonsLangVersion"
             dependency "cglib:cglib:$cglibVersion"
             dependency "org.slf4j:slf4j-api:$slf4jApiVersion"
+            dependency "commons-net:commons-net:$commonsNetVersion"
         }
     }
 
