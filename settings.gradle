@@ -1,3 +1,4 @@
 rootProject.name = 'pecker'
 include 'common'
+include 'core'
 
