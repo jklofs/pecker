@@ -1,3 +1,6 @@
 archivesBaseName = 'core'
 dependencies {
+    compile(
+            project(":common")
+    )
 }
