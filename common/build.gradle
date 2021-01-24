@@ -1,4 +1,7 @@
 archivesBaseName = 'common'
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile(
+            "com.esotericsoftware:reflectasm",
+            "cglib:cglib"
+    )
 }
