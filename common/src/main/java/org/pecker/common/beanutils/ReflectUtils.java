@@ -101,7 +101,7 @@ public class ReflectUtils {
     private static List<FastField> createdClassPropertyDescriptors(Class beanClass,MethodAccess methodAccess){
         String beanName = beanClass.getName();
         List<FastField> fieldMethods = new ArrayList<>();
-        PropertyDescriptor[] propertyDescriptors = org.springframework.cglib.core.ReflectUtils.getBeanProperties(beanClass);
+        PropertyDescriptor[] propertyDescriptors = net.sf.cglib.core.ReflectUtils.getBeanProperties(beanClass);
         for (PropertyDescriptor propertyDescriptor : propertyDescriptors){
             FastField fieldMethod = new FastField(methodAccess,propertyDescriptor.getPropertyType(),propertyDescriptor.getName(),propertyDescriptor
                     .getReadMethod(),propertyDescriptor.getWriteMethod());

@@ -1,8 +1,8 @@
 package org.pecker.common.beanutils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.beans.BeanCopier;
-import org.springframework.cglib.core.Converter;
+import net.sf.cglib.beans.BeanCopier;
+import net.sf.cglib.core.Converter;
 
 import java.io.Serializable;
 import java.util.*;

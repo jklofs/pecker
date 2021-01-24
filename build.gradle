@@ -1,15 +1,54 @@
 plugins {
     id 'java'
+    id "io.spring.dependency-management" version "1.0.11.RELEASE"
 }
-
-group 'pecker'
-version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
+ext {
+    lombokVersion = '1.18.16'
+    asmVersion = '1.11.9'
+    commonsCollectionVersion = '4.3'
+    commonsLangVersion = '3.11'
+    cglibVersion = '3.3.0'
+    slf4jApiVersion = '1.7.30'
+}
+
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'org.projectlombok:lombok:1.16.20'
+}
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'maven'
+
+    group = 'pecker'
+    version = '1.0-SNAPSHOT'
+}
+
+
+subprojects {
+    repositories {
+        mavenCentral()
+    }
+    sourceCompatibility = 1.11
+    targetCompatibility = 1.11
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    dependencies {
+        compile(
+                "org.projectlombok:lombok:$lombokVersion",
+                "com.esotericsoftware:reflectasm:$asmVersion",
+                "org.apache.commons:commons-collections4:$commonsCollectionVersion",
+                "org.apache.commons:commons-lang3:$commonsLangVersion",
+                "cglib:cglib:$cglibVersion",
+                "org.slf4j:slf4j-api:$slf4jApiVersion"
+        )
+        annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    }
 }

@@ -1,7 +1,5 @@
 package org.pecker.common.beanutils;
 
-import com.hzgroup.engine.common.customexception.BusinessException;
-import com.hzgroup.engine.common.enumeration.ResultCodeEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,7 +33,7 @@ public class CheckUtils {
             }
             Object value = fastField.getValue(source);
             if (value == null){
-                throw new BusinessException(ResultCodeEnum.PARAMETER_NOT,fastField.getFieldName());
+                throw new RuntimeException("parameter undefine:"+fastField.getFieldName());
             }
         }
     }
@@ -63,7 +61,7 @@ public class CheckUtils {
             }
         }
         if (nullNum<shouldCheckFieldSet.size()){
-            throw new BusinessException(ResultCodeEnum.PARAMETER_NOT,shouldCheckFieldSet);
+            throw new RuntimeException("parameter undefine");
         }
     }
 
@@ -85,13 +83,13 @@ public class CheckUtils {
             }
             Object value = fastField.getValue(source);
             if (value == null){
-                throw new BusinessException(ResultCodeEnum.PARAMETER_NOT,fastField.getFieldName());
+                throw new NullPointerException();
             }
             if (!value.getClass().isAssignableFrom(CharSequence.class)){
                 continue;
             }
             if (StringUtils.isBlank((CharSequence) value)){
-                throw new BusinessException(ResultCodeEnum.PARAMETER_NOT,fastField.getFieldName());
+                throw new NullPointerException();
             }
         }
     }
@@ -126,7 +124,7 @@ public class CheckUtils {
             }
         }
         if (blankNum<shouldCheckFieldSet.size()){
-            throw new BusinessException(ResultCodeEnum.PARAMETER_NOT,shouldCheckFieldSet);
+            throw new IndexOutOfBoundsException();
         }
     }
 

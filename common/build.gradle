@@ -1,14 +1,4 @@
-plugins {
-    id 'java'
-}
-
-group 'pecker'
-version '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
-
+archivesBaseName = 'common'
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
