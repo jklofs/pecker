@@ -5,6 +5,10 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 
 import javassist.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.pecker.common.beanutils.FastField;
+import org.pecker.common.beanutils.ReflectUtils;
 
 public class ProxyFactory {
     public ProxyFactory() {
@@ -21,7 +25,6 @@ public class ProxyFactory {
         ctMethod.setBody("{System.out.println(\"i want to be your friend\");}");
         cc.addMethod(ctMethod);
         ProxyFactory.PersonService person = (ProxyFactory.PersonService)cc.toClass().newInstance();
-        person.personFly();
         Method execute = person.getClass().getMethod("joinFriend");
         execute.invoke(person);
     }
@@ -37,11 +40,41 @@ public class ProxyFactory {
         ctClass.addField(ctField);
         ctClass.addInterface(pool.get("org.pecker.proxy.support.ProxyFactory$MethodProxy"));
 //        CtMethod ctMethod = new CtMethod(pool.get(Object.class.getName()),"invoke",new CtClass[]{pool.get(Object[].class.getName())},ctClass);
-
-        ctClass.addMethod(CtNewMethod.make(pool.get(Object.class.getName()),"invoke",new CtClass[]{pool.get(Object[].class.getName())},null,"{String a = (String)$1[0] ;System.out.print(a); return null;}",ctClass));
+        ctClass.addField(new CtField(pool.get(PersonService.class.getName()),"x",ctClass));
+        ctClass.addConstructor(CtNewConstructor.make(null,null,"{x = new org.pecker.proxy.support.ProxyFactory$PersonService();}",ctClass));
+        ctClass.addMethod(CtNewMethod.make(pool.get(Object.class.getName()),"invoke",new CtClass[]{pool.get(Object[].class.getName())},null,"{x.setA(((java.lang.Integer)($1[0])).intValue()); return ($r)null;}",ctClass));
 
         MethodProxy methodProxy = (MethodProxy) ctClass.toClass().newInstance();
-        methodProxy.invoke("dsadsadsa");
+        long now = System.currentTimeMillis();
+        Integer integer = new Integer(1);
+        for (long i=0;i<10000000000L;i++) {
+            methodProxy.invoke(integer);
+        }
+        System.out.println(System.currentTimeMillis()-now);
+        PersonService personService = new PersonService();
+        now = System.currentTimeMillis();
+        for (long i=0;i<10000000000L;i++) {
+            personService.setA(integer);
+        }
+        System.out.println(System.currentTimeMillis()-now);
+
+        Method method = personService.getClass().getDeclaredMethod("setA",int.class);
+        for (long i=0;i<50;i++) {
+            method.invoke(personService,integer);
+        }
+        now = System.currentTimeMillis();
+        for (long i=0;i<10000000000L;i++) {
+            method.invoke(personService,integer);
+        }
+        System.out.println(System.currentTimeMillis()-now);
+
+
+        FastField fastField = ReflectUtils.getFieldMethodAccess(PersonService.class,"a");
+        now = System.currentTimeMillis();
+        for (long i=0;i<10000000000L;i++) {
+            fastField.setValue(personService,integer);
+        }
+        System.out.println(System.currentTimeMillis()-now);
 //        // 把生成的class文件写入文件
 //        byte[] byteArr = ctClass.toBytecode();
 //        FileOutputStream fos = new FileOutputStream(new File(".//MyCC.class"));
@@ -60,19 +93,27 @@ public class ProxyFactory {
     }
 
     static class PersonService {
+        private int a=0;
         PersonService() {
         }
 
-        public void getPerson() {
-            System.out.println("get Person");
+        public void setA(int a) {
+            this.a = a;
         }
 
-        public void personFly() {
-            System.out.println("oh my god,I can fly");
-        }
     }
 
     static interface MethodProxy{
         Object invoke(Object... args);
+    }
+
+    class test implements MethodProxy{
+
+        @Override
+        public Object invoke(Object... args) {
+            PersonService personService = new PersonService();
+            personService.setA((int)args[0]);
+            return null;
+        }
     }
 }
