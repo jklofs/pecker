@@ -58,8 +58,8 @@ public class BeanCopyUtils {
         List<FastField> classFastFieldList = CLASS_FAST_FIELD_MAP.computeIfAbsent(sourceOne.getClass(),(tClass)->ReflectUtils.getFieldMethods(tClass));
         T result = null;
         try {
-            result = (T) sourceOne.getClass().newInstance();
-        } catch (InstantiationException |IllegalAccessException e) {
+            result = (T) sourceOne.getClass().getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
         for (FastField fastField : classFastFieldList ){
