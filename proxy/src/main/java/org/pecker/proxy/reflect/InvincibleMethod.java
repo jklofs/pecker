@@ -6,4 +6,6 @@ public interface InvincibleMethod {
     String getName();
 
     int getIndex();
+
+    Class[] getParameterTypes();
 }

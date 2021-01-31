@@ -1,4 +1,4 @@
-package org.pecker.common.beanutils;
+package org.pecker.proxy.utils.beanutils;
 
 import lombok.extern.slf4j.Slf4j;
 import net.sf.cglib.beans.BeanCopier;

@@ -1,4 +1,5 @@
 dependencies {
+    implementation 'junit:junit:4.12'
     compile "org.javassist:javassist"
     compile project(":common")
 }

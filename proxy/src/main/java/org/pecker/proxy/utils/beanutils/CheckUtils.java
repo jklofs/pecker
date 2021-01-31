@@ -1,4 +1,4 @@
-package org.pecker.common.beanutils;
+package org.pecker.proxy.utils.beanutils;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -114,6 +114,7 @@ public class CheckUtils {
             Object value = fastField.getValue(source);
             if (value == null){
                 blankNum++;
+                continue;
             }
             if (!value.getClass().isAssignableFrom(CharSequence.class)){
                 blankNum++;

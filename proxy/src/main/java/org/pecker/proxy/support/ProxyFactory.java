@@ -1,14 +1,10 @@
 package org.pecker.proxy.support;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 
 import javassist.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.pecker.common.beanutils.FastField;
-import org.pecker.common.beanutils.ReflectUtils;
+import org.pecker.proxy.utils.beanutils.FastField;
+import org.pecker.proxy.utils.beanutils.ReflectUtils;
 
 public class ProxyFactory {
     public ProxyFactory() {
