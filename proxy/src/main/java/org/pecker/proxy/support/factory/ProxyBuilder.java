@@ -1,22 +1,19 @@
 package org.pecker.proxy.support.factory;
 
 import javassist.*;
-import lombok.AllArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.pecker.proxy.reflect.InvincibleMethod;
 import org.pecker.proxy.support.BeanCreateProxy;
 import org.pecker.proxy.support.MethodSign;
 import org.pecker.proxy.support.handler.ProxyHandler;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-@AllArgsConstructor
 public class ProxyBuilder {
     private static final String PREFIX_PACKAGE = "org.pecker.proxy.support.factory.";
 
@@ -30,63 +27,78 @@ public class ProxyBuilder {
 
     private ProxyConditionFilter conditionFilter;
 
+    public ProxyBuilder(Class superClass, ProxyConditionFilter conditionFilter) {
+        this(superClass,null,conditionFilter);
+    }
+
+    public ProxyBuilder(Class superClass, List<Class> interfaceList, ProxyConditionFilter conditionFilter) {
+        this(superClass.getName()+"$Proxy",superClass,interfaceList,conditionFilter);
+    }
+
+    public ProxyBuilder(String name, Class superClass, List<Class> interfaceList, ProxyConditionFilter conditionFilter) {
+        this.name = name;
+        this.superClass = superClass;
+        this.interfaceList = interfaceList;
+        this.conditionFilter = conditionFilter;
+    }
+
     public BeanCreateProxy build() throws NotFoundException, CannotCompileException, IOException {
         CtClass ctClass = pool.makeClass(PREFIX_PACKAGE + name);
         List<MethodSign> methodSignSet = new ArrayList<>();
         List<Class> constructorNeedClassList = new ArrayList<>();
-        ctClass.addField(new CtField(pool.get(ProxyHandler.class.getName()),"handler",ctClass));
+        ctClass.addField(new CtField(pool.get(ProxyHandler.class.getName()), "handler", ctClass));
         constructorNeedClassList.add(ProxyHandler.class);
-        ctClass.addField(new CtField(pool.get(InvincibleMethod[].class.getName()),"methods",ctClass));
+        ctClass.addField(new CtField(pool.get(InvincibleMethod[].class.getName()), "methods", ctClass));
         constructorNeedClassList.add(InvincibleMethod[].class);
-        int methodIndex =0;
-        if (superClass!=null) {
-            analysisSuperClass(superClass,ctClass, methodSignSet, constructorNeedClassList, methodIndex,true);
+        int methodIndex = 0;
+        if (superClass != null) {
+            analysisSuperClass(superClass, ctClass, methodSignSet, constructorNeedClassList, methodIndex, true);
         }
 
         if (CollectionUtils.isNotEmpty(interfaceList)) {
             ctClass.setInterfaces(interfaceList.toArray(new CtClass[0]));
-            for (Class interfaceClass : interfaceList){
-                analysisSuperClass(interfaceClass,ctClass, methodSignSet, constructorNeedClassList, methodIndex,false);
+            for (Class interfaceClass : interfaceList) {
+                analysisSuperClass(interfaceClass, ctClass, methodSignSet, constructorNeedClassList, methodIndex, false);
             }
         }
         StringBuilder constructorNeedBuilder = new StringBuilder();
         constructorNeedBuilder.append("{ handler=$1; methods=$2;");
-        for (int index = 2 ;index<constructorNeedClassList.size();index++){
+        for (int index = 2; index < constructorNeedClassList.size(); index++) {
             Class constructorNeedClass = constructorNeedClassList.get(index);
-            constructorNeedBuilder.append(constructorNeedClass.getSimpleName()).append("=").append("$"+(index+1)).append(";");
+            constructorNeedBuilder.append(constructorNeedClass.getSimpleName()).append("=").append("$" + (index + 1)).append(";");
         }
         constructorNeedBuilder.append("}");
         ctClass.addConstructor(CtNewConstructor.make(changeClassToCtClass(constructorNeedClassList.toArray(new Class[0]))
-                ,null,constructorNeedBuilder.toString(),ctClass));
-        return new BeanCreateProxy(ctClass.toClass(),methodSignSet,constructorNeedClassList);
+                , null, constructorNeedBuilder.toString(), ctClass));
+        return new BeanCreateProxy(ctClass.toClass(), methodSignSet, constructorNeedClassList);
     }
 
-    private void analysisSuperClass(Class superClass,CtClass ctClass, List<MethodSign> methodSignList
-            , List<Class> constructorNeedClassList, int methodIndex,boolean isSuper) throws CannotCompileException, NotFoundException {
+    private void analysisSuperClass(Class superClass, CtClass ctClass, List<MethodSign> methodSignList
+            , List<Class> constructorNeedClassList, int methodIndex, boolean isSuper) throws CannotCompileException, NotFoundException {
         constructorNeedClassList.add(superClass);
         if (isSuper) {
             ctClass.setSuperclass(pool.get(superClass.getName()));
-        }else {
+        } else {
             ctClass.addInterface(pool.get(superClass.getName()));
         }
-        ctClass.addField(new CtField(pool.get(superClass.getName()),superClass.getSimpleName(), ctClass));
-        for (Method method : superClass.getMethods()){
-            MethodSign methodSign = new MethodSign(method.getName(),method.getParameterTypes());
-            if (methodSignList.stream().anyMatch(item->item.equals(methodSign))){
+        ctClass.addField(new CtField(pool.get(superClass.getName()), superClass.getSimpleName(), ctClass));
+        for (Method method : superClass.getMethods()) {
+            MethodSign methodSign = new MethodSign(method.getName(), method.getParameterTypes());
+            if (methodSignList.stream().anyMatch(item -> item.equals(methodSign))) {
                 continue;
             }
-            if (Modifier.isFinal(method.getModifiers())){
+            if (Modifier.isFinal(method.getModifiers())) {
                 continue;
             }
             methodSignList.add(methodSign);
             StringBuilder methodBodyBuilder = new StringBuilder();
-            if (!conditionFilter.shouldProxy(method)){
+            if (!conditionFilter.shouldProxy(method)) {
                 methodBodyBuilder.append("return ($r)").append(superClass.getSimpleName()).append(".").append(method.getName()).append("($$);");
-            }else {
+            } else {
                 methodBodyBuilder.append("return ($r)(handler.invoke((java.lang.Object)$0,methods[").append(methodIndex++).append("],$args));");
             }
-            ctClass.addMethod(CtNewMethod.make(pool.get(method.getReturnType().getName()),method.getName()
-                    , changeClassToCtClass(method.getParameterTypes()), changeClassToCtClass(method.getExceptionTypes()),methodBodyBuilder.toString(), ctClass));
+            ctClass.addMethod(CtNewMethod.make(pool.get(method.getReturnType().getName()), method.getName()
+                    , changeClassToCtClass(method.getParameterTypes()), changeClassToCtClass(method.getExceptionTypes()), methodBodyBuilder.toString(), ctClass));
         }
     }
 
