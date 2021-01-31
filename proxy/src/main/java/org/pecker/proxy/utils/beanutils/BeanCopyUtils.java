@@ -5,6 +5,7 @@ import net.sf.cglib.beans.BeanCopier;
 import net.sf.cglib.core.Converter;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -20,9 +21,9 @@ public class BeanCopyUtils {
 
     public static <S, T> T copyByClass(S source, Class<T> targetClass, Converter converter) {
         try {
-            T target = targetClass.newInstance();
+            T target = targetClass.getDeclaredConstructor().newInstance();
             return copyByBean(source, target, converter);
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             log.error("错误：{}", e);
         }
         return null;
