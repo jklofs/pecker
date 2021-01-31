@@ -1,4 +1,4 @@
-package org.pecker.proxy.support;
+package org.pecker.proxy.support.factory;
 
 import java.lang.reflect.Method;
 

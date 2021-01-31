@@ -1,19 +1,24 @@
-package org.pecker.proxy.support;
+package org.pecker.proxy.support.factory;
 
 import javassist.*;
 import lombok.AllArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.pecker.proxy.reflect.InvincibleMethod;
+import org.pecker.proxy.support.BeanCreateProxy;
+import org.pecker.proxy.support.MethodSign;
+import org.pecker.proxy.support.handler.ProxyHandler;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 @AllArgsConstructor
 public class ProxyBuilder {
-    private static final String PREFIX_PACKAGE = "org.pecker.proxy.support.";
+    private static final String PREFIX_PACKAGE = "org.pecker.proxy.support.factory.";
 
     private static final ClassPool pool = ClassPool.getDefault();
 
@@ -25,7 +30,7 @@ public class ProxyBuilder {
 
     private ProxyConditionFilter conditionFilter;
 
-    public Object build() throws NotFoundException, CannotCompileException, IOException {
+    public BeanCreateProxy build() throws NotFoundException, CannotCompileException, IOException {
         CtClass ctClass = pool.makeClass(PREFIX_PACKAGE + name);
         List<MethodSign> methodSignSet = new ArrayList<>();
         List<Class> constructorNeedClassList = new ArrayList<>();
@@ -51,15 +56,9 @@ public class ProxyBuilder {
             constructorNeedBuilder.append(constructorNeedClass.getSimpleName()).append("=").append("$"+(index+1)).append(";");
         }
         constructorNeedBuilder.append("}");
-        System.out.println(constructorNeedBuilder.toString());
         ctClass.addConstructor(CtNewConstructor.make(changeClassToCtClass(constructorNeedClassList.toArray(new Class[0]))
                 ,null,constructorNeedBuilder.toString(),ctClass));
-        byte[] byteArr = ctClass.toBytecode();
-        FileOutputStream fos = new FileOutputStream(new File(".//Mxx.class"));
-        fos.write(byteArr);
-        fos.close();
-        System.out.println("over!!");
-        return null;
+        return new BeanCreateProxy(ctClass.toClass(),methodSignSet,constructorNeedClassList);
     }
 
     private void analysisSuperClass(Class superClass,CtClass ctClass, List<MethodSign> methodSignList
@@ -76,6 +75,9 @@ public class ProxyBuilder {
             if (methodSignList.stream().anyMatch(item->item.equals(methodSign))){
                 continue;
             }
+            if (Modifier.isFinal(method.getModifiers())){
+                continue;
+            }
             methodSignList.add(methodSign);
             StringBuilder methodBodyBuilder = new StringBuilder();
             if (!conditionFilter.shouldProxy(method)){
@@ -83,7 +85,6 @@ public class ProxyBuilder {
             }else {
                 methodBodyBuilder.append("return ($r)(handler.invoke((java.lang.Object)$0,methods[").append(methodIndex++).append("],$args));");
             }
-            System.out.println(methodBodyBuilder.toString());
             ctClass.addMethod(CtNewMethod.make(pool.get(method.getReturnType().getName()),method.getName()
                     , changeClassToCtClass(method.getParameterTypes()), changeClassToCtClass(method.getExceptionTypes()),methodBodyBuilder.toString(), ctClass));
         }
@@ -99,20 +100,44 @@ public class ProxyBuilder {
         }).toArray(CtClass[]::new);
     }
 
-    static class User{
+    public static class User{
         public void test(String a){
-            System.out.println(a);
+            a="1123";
             return;
         }
     }
 
-    public static void main(String[] args) throws IOException, CannotCompileException, NotFoundException {
+    public static void main(String[] args) throws IOException, CannotCompileException, NotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         ProxyBuilder builder = new ProxyBuilder("UserPeox", User.class, null, new ProxyConditionFilter() {
             @Override
             public boolean shouldProxy(Method method) {
-                return false;
+                return true;
             }
         });
-        builder.build();
+        User user = new User();
+        User proxy = (User) builder.build().createInstance(new ProxyHandler() {
+
+            @Override
+            public Object invoke(Object proxy, InvincibleMethod method, Object... args) {
+
+                try {
+                    return method.invoke(user,args);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        },user);
+        long now = System.currentTimeMillis();
+        for (long i = 0 ;i<10000000010L;i++) {
+            proxy.test("12121");
+        }
+        System.out.println(System.currentTimeMillis()-now);
+
+        now = System.currentTimeMillis();
+        for (long i = 0 ;i<10000000010L;i++) {
+            user.test("12121");
+        }
+        System.out.println(System.currentTimeMillis()-now);
     }
 }

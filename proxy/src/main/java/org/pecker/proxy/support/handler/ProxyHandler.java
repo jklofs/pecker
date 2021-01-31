@@ -1,4 +1,4 @@
-package org.pecker.proxy.support;
+package org.pecker.proxy.support.handler;
 
 import org.pecker.proxy.reflect.InvincibleMethod;
 

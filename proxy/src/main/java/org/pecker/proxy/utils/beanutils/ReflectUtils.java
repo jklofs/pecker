@@ -8,6 +8,7 @@ import org.pecker.proxy.reflect.InvincibleMethodFactory;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ReflectUtils {
@@ -74,7 +75,7 @@ public class ReflectUtils {
             argsTypes = new Class[0];
         }
         InvincibleMethod invincibleMethod = invincibleMethodList.stream()
-                .filter(item->methodName.equals(item.getName())&&argsTypes.equals(item.getParameterTypes())).findFirst().orElse(null);
+                .filter(item->methodName.equals(item.getName())&& Arrays.equals(argsTypes,item.getParameterTypes())).findFirst().orElse(null);
         if (invincibleMethod == null){
             throw new RuntimeException(new NoSuchMethodException());
         }
