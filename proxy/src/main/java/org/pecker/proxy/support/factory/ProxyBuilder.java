@@ -1,6 +1,7 @@
 package org.pecker.proxy.support.factory;
 
 import javassist.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.pecker.common.code.CodeUtils;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public class ProxyBuilder {
     private static final String PREFIX_PACKAGE = "org.pecker.proxy.support.factory.";
 
@@ -101,7 +103,7 @@ public class ProxyBuilder {
                 methodBodyBuilder.append(CodeUtils.fillMethodReturnCode(Object.class,method.getReturnType()
                         ," (handler.invoke((java.lang.Object)$0,methods["+ (methodIndex++)+"],$args))"));
             }
-            System.out.println(methodBodyBuilder.toString());
+            log.debug("method info {}",methodBodyBuilder.toString());
             ctClass.addMethod(CtNewMethod.make(pool.get(method.getReturnType().getName()), method.getName()
                     , changeClassToCtClass(method.getParameterTypes()), changeClassToCtClass(method.getExceptionTypes()), methodBodyBuilder.toString(), ctClass));
         }
