@@ -1,6 +1,7 @@
 archivesBaseName = 'core'
 dependencies {
     compile(
-            project(":common")
+            project(":common"),
+            project(":proxy")
     )
 }
