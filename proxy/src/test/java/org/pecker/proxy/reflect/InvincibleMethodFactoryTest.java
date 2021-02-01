@@ -15,7 +15,7 @@ import java.util.List;
 public class InvincibleMethodFactoryTest {
 
     @Test
-    public void test() throws Exception {
+    public void test() throws Throwable {
         List<InvincibleMethod> invincibleMethods = InvincibleMethodFactory.create(TestLL.class);
         InvincibleMethod invincibleMethod = invincibleMethods.stream().filter(item->item.getName().equals("testA")).findFirst().orElse(null);
         TestLL test = new TestLL();
@@ -25,18 +25,22 @@ public class InvincibleMethodFactoryTest {
 
 
     public static class User{
-        public void test(String a){
+        public Object test(String a){
             a="1123";
-            return;
+            System.out.println(a);
+            return 0;
         }
     }
 
-    @Test
-    public void test2() throws IOException, CannotCompileException, NotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public static void main(String[] args) throws IOException, CannotCompileException, NotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         ProxyBuilder builder = new ProxyBuilder("UserPeox", User.class, null, new ProxyConditionFilter() {
             @Override
             public boolean shouldProxy(Method method) {
-                return true;
+                if (method.getName().equalsIgnoreCase("test")) {
+                    return true;
+                }else {
+                    return false;
+                }
             }
         });
         User user = new User();
@@ -44,10 +48,10 @@ public class InvincibleMethodFactoryTest {
 
             @Override
             public Object invoke(Object proxy, InvincibleMethod method, Object... args) {
-                System.out.println("21212");
                 try {
-                    return method.invoke(user,args);
-                } catch (Exception e) {
+                    System.out.println("21212");
+                    return new Integer(0);
+                } catch (Throwable e) {
                     e.printStackTrace();
                 }
                 return null;

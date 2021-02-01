@@ -81,7 +81,7 @@ public class ReflectUtils {
         }
         try {
             return invincibleMethod.invoke(bean,methodName,args);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }

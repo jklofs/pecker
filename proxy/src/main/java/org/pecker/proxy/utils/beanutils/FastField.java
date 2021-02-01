@@ -24,7 +24,7 @@ public class FastField {
     public Object getValue(Object bean) {
         try {
             return fieldGetMethod.invoke(bean);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -32,7 +32,7 @@ public class FastField {
     public void setValue(Object bean, Object value) {
         try {
             fieldSetMethod.invoke(bean,value);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }

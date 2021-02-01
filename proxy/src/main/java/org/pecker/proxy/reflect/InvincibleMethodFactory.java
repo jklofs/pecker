@@ -46,6 +46,8 @@ public class InvincibleMethodFactory {
                             builder.append(" new ").append(Byte.class.getName());
                         } else if (method.getReturnType().equals(boolean.class)) {
                             builder.append(" new ").append(Boolean.class.getName());
+                        } else if (method.getReturnType().equals(short.class)) {
+                            builder.append(" new ").append(Short.class.getName());
                         }
                         builder.append("(");
                         fillMethodUseCode(sourceClass, method, builder);

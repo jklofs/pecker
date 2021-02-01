@@ -2,6 +2,8 @@ package org.pecker.proxy.support.factory;
 
 import javassist.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.pecker.common.code.CodeUtils;
 import org.pecker.proxy.reflect.InvincibleMethod;
 import org.pecker.proxy.support.BeanCreateProxy;
 import org.pecker.proxy.support.MethodSign;
@@ -93,10 +95,13 @@ public class ProxyBuilder {
             methodSignList.add(methodSign);
             StringBuilder methodBodyBuilder = new StringBuilder();
             if (!conditionFilter.shouldProxy(method)) {
-                methodBodyBuilder.append("return ($r)").append(superClass.getSimpleName()).append(".").append(method.getName()).append("($$);");
+                methodBodyBuilder.append(CodeUtils.fillMethodReturnCode(method.getReturnType(),method.getReturnType()
+                        , StringUtils.join(superClass.getSimpleName(),".",method.getName(),"($$)")));
             } else {
-                methodBodyBuilder.append("return ($r)(handler.invoke((java.lang.Object)$0,methods[").append(methodIndex++).append("],$args));");
+                methodBodyBuilder.append(CodeUtils.fillMethodReturnCode(Object.class,method.getReturnType()
+                        ," (handler.invoke((java.lang.Object)$0,methods["+ (methodIndex++)+"],$args))"));
             }
+            System.out.println(methodBodyBuilder.toString());
             ctClass.addMethod(CtNewMethod.make(pool.get(method.getReturnType().getName()), method.getName()
                     , changeClassToCtClass(method.getParameterTypes()), changeClassToCtClass(method.getExceptionTypes()), methodBodyBuilder.toString(), ctClass));
         }
