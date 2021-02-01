@@ -1,6 +1,7 @@
 package org.pecker.proxy.reflect;
 
 import javassist.*;
+import org.pecker.common.code.CodeUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -32,31 +33,7 @@ public class InvincibleMethodFactory {
                     ctClass.addInterface(pool.get(InvincibleMethod.class.getName()));
                     StringBuilder builder = new StringBuilder();
                     builder.append("{");
-                    if (!method.getReturnType().equals(void.class) && !method.getReturnType().equals(Void.class)) {
-                        builder.append("return ");
-                        if (method.getReturnType().equals(int.class)) {
-                            builder.append(" new ").append(Integer.class.getName());
-                        } else if (method.getReturnType().equals(float.class)) {
-                            builder.append(" new ").append(Float.class.getName());
-                        } else if (method.getReturnType().equals(long.class)) {
-                            builder.append(" new ").append(Long.class.getName());
-                        } else if (method.getReturnType().equals(double.class)) {
-                            builder.append(" new ").append(Double.class.getName());
-                        } else if (method.getReturnType().equals(byte.class)) {
-                            builder.append(" new ").append(Byte.class.getName());
-                        } else if (method.getReturnType().equals(boolean.class)) {
-                            builder.append(" new ").append(Boolean.class.getName());
-                        } else if (method.getReturnType().equals(short.class)) {
-                            builder.append(" new ").append(Short.class.getName());
-                        }
-                        builder.append("(");
-                        fillMethodUseCode(sourceClass, method, builder);
-                        builder.append(");");
-                    } else {
-                        fillMethodUseCode(sourceClass, method, builder);
-                        builder.append(";");
-                        builder.append("return null;");
-                    }
+                    builder.append(CodeUtils.fillMethodReturnCode(method.getReturnType(),Object.class,fillMethodUseCode(sourceClass, method)));
                     builder.append("}");
                     CtField ctField = new CtField(pool.get(Class[].class.getName()), "x", ctClass);
                     ctClass.addField(ctField);
@@ -80,7 +57,8 @@ public class InvincibleMethodFactory {
         });
     }
 
-    private static void fillMethodUseCode(Class sourceClass, Method method, StringBuilder builder) {
+    private static String fillMethodUseCode(Class sourceClass, Method method) {
+        StringBuilder builder = new StringBuilder();
         builder.append(" (").append("(").append(sourceClass.getName()).append(")").append("$1").append(")")
                 .append(".").append(method.getName()).append("(");
         Class[] parameterTypes = method.getParameterTypes();
@@ -108,5 +86,6 @@ public class InvincibleMethodFactory {
             }
         }
         builder.append(")");
+        return builder.toString();
     }
 }

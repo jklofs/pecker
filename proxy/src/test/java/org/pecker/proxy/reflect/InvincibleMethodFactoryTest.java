@@ -50,7 +50,7 @@ public class InvincibleMethodFactoryTest {
             public Object invoke(Object proxy, InvincibleMethod method, Object... args) {
                 try {
                     System.out.println("21212");
-                    return new Integer(0);
+                    return user.test((String) args[0]);
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
