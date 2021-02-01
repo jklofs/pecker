@@ -27,7 +27,6 @@ public class InvincibleMethodFactoryTest {
     public static class User{
         public Object test(String a){
             a="1123";
-            System.out.println(a);
             return 0;
         }
     }
@@ -49,8 +48,8 @@ public class InvincibleMethodFactoryTest {
             @Override
             public Object invoke(Object proxy, InvincibleMethod method, Object... args) {
                 try {
-                    System.out.println("21212");
-                    return user.test((String) args[0]);
+                    args[0] = "21321321";
+                    return method.invoke(user,args);
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
@@ -58,13 +57,13 @@ public class InvincibleMethodFactoryTest {
             }
         },user);
         long now = System.currentTimeMillis();
-        for (long i = 0 ;i<1;i++) {
+        for (long i = 0 ;i<1000000000L;i++) {
             proxy.test("12121");
         }
         System.out.println(System.currentTimeMillis()-now);
 
         now = System.currentTimeMillis();
-        for (long i = 0 ;i<1;i++) {
+        for (long i = 0 ;i<1000000000L;i++) {
             user.test("12121");
         }
         System.out.println(System.currentTimeMillis()-now);
