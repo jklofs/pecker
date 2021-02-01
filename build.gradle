@@ -62,5 +62,7 @@ subprojects {
                 "org.slf4j:slf4j-api"
         )
         annotationProcessor "org.projectlombok:lombok"
+        testCompile "org.projectlombok:lombok"
+
     }
 }

@@ -44,7 +44,7 @@ public class InvincibleMethodFactoryTest {
 
             @Override
             public Object invoke(Object proxy, InvincibleMethod method, Object... args) {
-
+                System.out.println("21212");
                 try {
                     return method.invoke(user,args);
                 } catch (Exception e) {
@@ -54,13 +54,13 @@ public class InvincibleMethodFactoryTest {
             }
         },user);
         long now = System.currentTimeMillis();
-        for (long i = 0 ;i<10000000010L;i++) {
+        for (long i = 0 ;i<1;i++) {
             proxy.test("12121");
         }
         System.out.println(System.currentTimeMillis()-now);
 
         now = System.currentTimeMillis();
-        for (long i = 0 ;i<10000000010L;i++) {
+        for (long i = 0 ;i<1;i++) {
             user.test("12121");
         }
         System.out.println(System.currentTimeMillis()-now);
