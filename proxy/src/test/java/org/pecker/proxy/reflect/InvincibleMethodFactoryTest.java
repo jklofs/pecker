@@ -25,13 +25,14 @@ public class InvincibleMethodFactoryTest {
 
 
     public static class User{
-        public Object test(String a){
+        public int test(String a){
             a="1123";
             return 0;
         }
     }
 
-    public static void main(String[] args) throws IOException, CannotCompileException, NotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    @Test
+    public void testProxy() throws IOException, CannotCompileException, NotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         ProxyBuilder builder = new ProxyBuilder("UserPeox", User.class, null, new ProxyConditionFilter() {
             @Override
             public boolean shouldProxy(Method method) {
@@ -49,7 +50,7 @@ public class InvincibleMethodFactoryTest {
             public Object invoke(Object proxy, InvincibleMethod method, Object... args) {
                 try {
                     args[0] = "21321321";
-                    return method.invoke(user,args);
+                    return new Integer((short) 1);
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
@@ -57,13 +58,13 @@ public class InvincibleMethodFactoryTest {
             }
         },user);
         long now = System.currentTimeMillis();
-        for (long i = 0 ;i<1000000000L;i++) {
+        for (long i = 0 ;i<1;i++) {
             proxy.test("12121");
         }
         System.out.println(System.currentTimeMillis()-now);
 
         now = System.currentTimeMillis();
-        for (long i = 0 ;i<1000000000L;i++) {
+        for (long i = 0 ;i<1;i++) {
             user.test("12121");
         }
         System.out.println(System.currentTimeMillis()-now);
@@ -75,5 +76,15 @@ public class InvincibleMethodFactoryTest {
             System.out.println("12312312");
             return;
         }
+    }
+
+    @Test
+    public void testCast(){
+        double s = testCastLL();
+        return;
+    }
+
+    public short testCastLL(){
+        return new Short((short) 1);
     }
 }

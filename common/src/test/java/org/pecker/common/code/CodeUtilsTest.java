@@ -10,6 +10,6 @@ public class CodeUtilsTest {
     @Test
     public void cast() {
        System.out.println(CodeUtils.fillMethodReturnCode(float.class,Object.class,"111"));
-        System.out.println(CodeUtils.fillMethodReturnCode(float.class,void.class,"111"));
+        System.out.println(CodeUtils.fillMethodReturnCode(short.class,int.class,"111"));
     }
 }
