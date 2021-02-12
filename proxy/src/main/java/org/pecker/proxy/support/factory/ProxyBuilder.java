@@ -56,8 +56,8 @@ public class ProxyBuilder {
         constructorNeedClassList.add(InvincibleMethod[].class);
         ctClass.addField(new CtField(pool.get(InvincibleMethod[].class.getName()), "methods", ctClass));
 
-        constructorNeedClassList.add(Object.class);
-        ctClass.addField(new CtField(pool.get(Object.class.getName()), "instance", ctClass));
+        constructorNeedClassList.add(superClass);
+        ctClass.addField(new CtField(pool.get(superClass.getName()), "instance", ctClass));
         int methodIndex = 0;
         if (superClass != null) {
             analysisSuperClass(superClass, ctClass, methodSignSet, methodIndex, true);
