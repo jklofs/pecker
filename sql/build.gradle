@@ -1,0 +1,7 @@
+archivesBaseName = 'sql'
+dependencies {
+    compile(
+            project(":common"),
+            "com.alibaba:druid"
+    )
+}
