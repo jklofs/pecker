@@ -4,7 +4,7 @@ import org.pecker.proxy.reflect.InvincibleMethod;
 
 import java.lang.reflect.InvocationHandler;
 
-public interface ProxyHandler {
+public interface AroundProxyHandler {
 
     Object invoke(Object proxy, InvincibleMethod method,Object... args) throws Throwable;
 }

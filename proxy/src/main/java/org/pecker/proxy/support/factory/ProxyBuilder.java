@@ -8,7 +8,7 @@ import org.pecker.common.code.CodeUtils;
 import org.pecker.proxy.reflect.InvincibleMethod;
 import org.pecker.proxy.support.BeanCreateProxy;
 import org.pecker.proxy.support.MethodSign;
-import org.pecker.proxy.support.handler.ProxyHandler;
+import org.pecker.proxy.support.handler.AroundProxyHandler;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -50,8 +50,8 @@ public class ProxyBuilder {
         CtClass ctClass = pool.makeClass(PREFIX_PACKAGE + name);
         List<MethodSign> methodSignSet = new ArrayList<>();
         List<Class> constructorNeedClassList = new ArrayList<>();
-        ctClass.addField(new CtField(pool.get(ProxyHandler.class.getName()), "handler", ctClass));
-        constructorNeedClassList.add(ProxyHandler.class);
+        ctClass.addField(new CtField(pool.get(AroundProxyHandler.class.getName()), "handler", ctClass));
+        constructorNeedClassList.add(AroundProxyHandler.class);
         ctClass.addField(new CtField(pool.get(InvincibleMethod[].class.getName()), "methods", ctClass));
         constructorNeedClassList.add(InvincibleMethod[].class);
         int methodIndex = 0;

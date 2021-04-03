@@ -5,7 +5,7 @@ import javassist.NotFoundException;
 import org.junit.Test;
 import org.pecker.proxy.support.factory.ProxyBuilder;
 import org.pecker.proxy.support.factory.ProxyConditionFilter;
-import org.pecker.proxy.support.handler.ProxyHandler;
+import org.pecker.proxy.support.handler.AroundProxyHandler;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -44,7 +44,7 @@ public class InvincibleMethodFactoryTest {
             }
         });
         User user = new User();
-        User proxy = (User) builder.build().createInstance(new ProxyHandler() {
+        User proxy = (User) builder.build().createInstance(new AroundProxyHandler() {
 
             @Override
             public Object invoke(Object proxy, InvincibleMethod method, Object... args) {
