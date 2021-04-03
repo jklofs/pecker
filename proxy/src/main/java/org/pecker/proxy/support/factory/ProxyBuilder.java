@@ -50,42 +50,37 @@ public class ProxyBuilder {
         CtClass ctClass = pool.makeClass(PREFIX_PACKAGE + name);
         List<MethodSign> methodSignSet = new ArrayList<>();
         List<Class> constructorNeedClassList = new ArrayList<>();
-        ctClass.addField(new CtField(pool.get(AroundProxyHandler.class.getName()), "handler", ctClass));
         constructorNeedClassList.add(AroundProxyHandler.class);
-        ctClass.addField(new CtField(pool.get(InvincibleMethod[].class.getName()), "methods", ctClass));
+        ctClass.addField(new CtField(pool.get(AroundProxyHandler.class.getName()), "handler", ctClass));
+
         constructorNeedClassList.add(InvincibleMethod[].class);
+        ctClass.addField(new CtField(pool.get(InvincibleMethod[].class.getName()), "methods", ctClass));
+
+        constructorNeedClassList.add(superClass);
+        ctClass.addField(new CtField(pool.get(superClass.getName()), "instance", ctClass));
         int methodIndex = 0;
         if (superClass != null) {
-            analysisSuperClass(superClass, ctClass, methodSignSet, constructorNeedClassList, methodIndex, true);
+            analysisSuperClass(superClass, ctClass, methodSignSet, methodIndex, true);
         }
 
         if (CollectionUtils.isNotEmpty(interfaceList)) {
             ctClass.setInterfaces(interfaceList.toArray(new CtClass[0]));
             for (Class interfaceClass : interfaceList) {
-                analysisSuperClass(interfaceClass, ctClass, methodSignSet, constructorNeedClassList, methodIndex, false);
+                analysisSuperClass(interfaceClass, ctClass, methodSignSet, methodIndex, false);
             }
         }
-        StringBuilder constructorNeedBuilder = new StringBuilder();
-        constructorNeedBuilder.append("{ handler=$1; methods=$2;");
-        for (int index = 2; index < constructorNeedClassList.size(); index++) {
-            Class constructorNeedClass = constructorNeedClassList.get(index);
-            constructorNeedBuilder.append(constructorNeedClass.getSimpleName()).append("=").append("$" + (index + 1)).append(";");
-        }
-        constructorNeedBuilder.append("}");
         ctClass.addConstructor(CtNewConstructor.make(changeClassToCtClass(constructorNeedClassList.toArray(new Class[0]))
-                , null, constructorNeedBuilder.toString(), ctClass));
+                , null, "{ handler=$1; methods=$2; instance=$3; }", ctClass));
         return new BeanCreateProxy(ctClass.toClass(), methodSignSet, constructorNeedClassList);
     }
 
     private void analysisSuperClass(Class superClass, CtClass ctClass, List<MethodSign> methodSignList
-            , List<Class> constructorNeedClassList, int methodIndex, boolean isSuper) throws CannotCompileException, NotFoundException {
-        constructorNeedClassList.add(superClass);
+            , int methodIndex, boolean isSuper) throws CannotCompileException, NotFoundException {
         if (isSuper) {
             ctClass.setSuperclass(pool.get(superClass.getName()));
         } else {
             ctClass.addInterface(pool.get(superClass.getName()));
         }
-        ctClass.addField(new CtField(pool.get(superClass.getName()), superClass.getSimpleName(), ctClass));
         for (Method method : superClass.getMethods()) {
             MethodSign methodSign = new MethodSign(method.getName(), method.getParameterTypes());
             if (methodSignList.stream().anyMatch(item -> item.equals(methodSign))) {
@@ -98,7 +93,7 @@ public class ProxyBuilder {
             StringBuilder methodBodyBuilder = new StringBuilder();
             if (!conditionFilter.shouldProxy(method)) {
                 methodBodyBuilder.append(CodeUtils.fillMethodReturnCode(method.getReturnType(),method.getReturnType()
-                        , StringUtils.join(superClass.getSimpleName(),".",method.getName(),"($$)")));
+                        , StringUtils.join("instance.",method.getName(),"($$)")));
             } else {
                 methodBodyBuilder.append(CodeUtils.fillMethodReturnCode(Object.class,method.getReturnType()
                         ," (handler.invoke((java.lang.Object)$0,methods["+ (methodIndex++)+"],$args))"));

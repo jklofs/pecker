@@ -35,6 +35,7 @@ subprojects {
         slf4jApiVersion = '1.7.30'
         commonsNetVersion = '3.7.2'
         javassistVersion = '3.27.0-GA'
+        druidVersion = '1.2.4'
     }
 
     apply plugin: 'io.spring.dependency-management'
@@ -49,6 +50,7 @@ subprojects {
             dependency "org.slf4j:slf4j-api:$slf4jApiVersion"
             dependency "commons-net:commons-net:$commonsNetVersion"
             dependency "org.javassist:javassist:$javassistVersion"
+            dependency "com.alibaba:druid:$druidVersion"
 
         }
     }

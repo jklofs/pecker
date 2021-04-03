@@ -2,4 +2,5 @@ rootProject.name = 'pecker'
 include 'common'
 include 'core'
 include 'proxy'
+include 'sql'
 
